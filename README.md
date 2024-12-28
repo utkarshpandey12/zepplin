@@ -11,6 +11,7 @@ appropriate search database by using Ingestion Operator defined in the code. Pro
 - Dynamic crawling parameters via Airflow Variables.
 - Seamless integration with vendors public APIs using generic client
 - Supports pagination and dynamic query generation.
+- Rate limiting API client
 
 ---
 

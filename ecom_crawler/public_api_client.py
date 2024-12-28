@@ -1,12 +1,29 @@
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
+import time
 import requests
 
+from ecom_crawler.config import ApiClientConfig
 from ecom_crawler.dataclasses import RequestTypes, SearchParamType
 from ecom_crawler.models import VendorParams, VendorResponse
 
 
 class PublicApiClient:
+    def __init__(
+        self,
+        max_requests_per_minute: Optional[int] = 60,
+        max_total_requests: int = 1000,
+    ):
+        self.config = ApiClientConfig()
+        self.max_requests_per_minute = (
+            max_requests_per_minute or self.config.MAX_REQUESTS
+        )
+        self.max_total_requests = (
+            max_total_requests or self.config.MAX_REQUESTS_PER_MINUTES
+        )
+        self.request_count = 0
+        self.start_time = time.time()
+
     def crawl(self, vendor: VendorParams, keyword: str) -> List[str]:  # noqa
         auth, headers, querystring, body = self.prepare_vendor_request(
             vendor=vendor
@@ -19,6 +36,7 @@ class PublicApiClient:
         while self.is_paginated_results_left(
             vendor=vendor, vendor_response=vendor_response
         ):
+            self._enforce_request_limits()
             response = requests.request(
                 vendor.request_type,
                 vendor.search_url,
@@ -35,6 +53,18 @@ class PublicApiClient:
             )  # noqa
 
         return vendor_response.product_urls
+
+    def _enforce_request_limits(self):
+        if self.request_count >= self.max_total_requests:
+            raise Exception("Maximum total request limit exceeded.")
+
+        elapsed_time = time.time() - self.start_time
+        if elapsed_time < 60 and self.request_count >= self.max_requests_per_minute:
+            sleep_time = 60 - elapsed_time
+            print(f"Rate limit reached. Sleeping for {sleep_time:.2f} seconds.")
+            time.sleep(sleep_time)
+            self.start_time = time.time()
+            self.request_count = 0
 
     def prepare_vendor_request(
         self, vendor: VendorParams
