@@ -7,37 +7,34 @@ from ecom_crawler.models import VendorParams, VendorResponse
 
 
 class PublicApiClient:
-    def crawl(self, vendor: VendorParams, keywords_list: list) -> List[str]:  # noqa
+    def crawl(self, vendor: VendorParams, keyword: str) -> List[str]:  # noqa
         auth, headers, querystring, body = self.prepare_vendor_request(
             vendor=vendor
         )  # noqa
         vendor_response = VendorResponse()
-        responses = []
 
-        for keyword in keywords_list:
-            vendor = self.modify_requests_search_params(
-                vendor=vendor, keyword=keyword
+        vendor = self.modify_requests_search_params(
+            vendor=vendor, keyword=keyword
+        )  # noqa
+        while self.is_paginated_results_left(
+            vendor=vendor, vendor_response=vendor_response
+        ):
+            response = requests.request(
+                vendor.request_type,
+                vendor.search_url,
+                auth=auth,
+                json=body,
+                headers=headers,
+                params=querystring,
+            )
+            vendor_response = VendorResponse.from_json(
+                data=response.json(), vendor=vendor
+            )
+            vendor = self.increment_request_search_increment_param(
+                vendor=vendor
             )  # noqa
-            while self.is_paginated_results_left(
-                vendor=vendor, vendor_response=vendor_response
-            ):
-                response = requests.request(
-                    vendor.request_type,
-                    vendor.search_url,
-                    auth=auth,
-                    json=body,
-                    headers=headers,
-                    params=querystring,
-                )
-                vendor_response = VendorResponse.from_json(
-                    data=response.json(), vendor=vendor
-                )
-                vendor = self.increment_request_search_increment_param(
-                    vendor=vendor
-                )  # noqa
-                responses.extend(vendor_response.product_urls)
 
-        return responses
+        return vendor_response.product_urls
 
     def prepare_vendor_request(
         self, vendor: VendorParams

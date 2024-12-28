@@ -7,6 +7,7 @@ appropriate search database by using Ingestion Operator defined in the code. Pro
 ## Features
 
 - Modular architecture for adding and managing multiple vendors.
+- S3 paths structured in format product_urls/{vendor}/{category_keyword}/hash/urls.json
 - Dynamic crawling parameters via Airflow Variables.
 - Seamless integration with vendors public APIs using generic client
 - Supports pagination and dynamic query generation.

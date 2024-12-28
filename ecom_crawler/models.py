@@ -33,13 +33,13 @@ class VendorParams(BaseModel):
     search_param_name: str
     search_increment_param_type: str
     search_increment_param_name: str
+    vendor_host_prefix: str
     body: dict
 
     @classmethod
     def from_json(cls, data: dict) -> List["VendorParams"]:
         vendors_list = []
         for key, value in data.items():
-            logger.info(f"data from task = {value}")
             vendors_list.append(
                 cls(
                     vendor_name=key,
@@ -59,6 +59,7 @@ class VendorParams(BaseModel):
                     search_increment_param_name=value.get(
                         "search_increment_param_name"
                     ),
+                    vendor_host_prefix=value.get("vendor_host_prefix"),
                 )
             )
         return vendors_list
@@ -84,3 +85,21 @@ class VendorResponse(BaseModel):
                 stop_value=data["results"][0]["content"]["last_visible_page"],
                 product_urls=product_links,
             )
+
+
+class VendorProductUrlsResponse(BaseModel):
+    producturls: List[str] = Field(default_factory=list)
+    vendor_name: str
+
+    @classmethod
+    def from_json(
+        cls, product_urls: List[str], vendor: VendorParams
+    ) -> "VendorProductUrlsResponse":
+        modifield_product_urls = []
+        for urls in product_urls:
+            urls = vendor.vendor_host_prefix + urls
+            modifield_product_urls.append(urls)
+        return cls(producturls=modifield_product_urls, vendor_name=vendor.vendor_name)
+
+    def to_json(self):
+        return {self.vendor_name: self.producturls}

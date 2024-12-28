@@ -6,13 +6,11 @@ from airflow.models import DAG
 from airflow.operators.python import PythonOperator
 from airflow.utils.task_group import TaskGroup
 
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+sys.path.append(PROJECT_ROOT)
+
 from operators.crawler import CrawlVendorsOperator
 from tasks.crawler_params import get_vendors
-
-PROJECT_ROOT = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.pardir)
-)  # noqa
-sys.path.append(PROJECT_ROOT)
 
 
 def create_ecom_crawler_dag():
