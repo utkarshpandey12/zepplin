@@ -86,6 +86,7 @@ airflow standalone
     "search_param_name": "query",
     "search_increment_param_type": "BODY",
     "search_increment_param_name": "start_page",
+    "vendor_host_prefix": "https://amazon.com",
     "query_params": {},
     "auth_params": {
       "headers_json": {},
