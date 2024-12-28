@@ -1,5 +1,7 @@
 from typing import List, Tuple
+
 import requests
+
 from ecom_crawler.dataclasses import RequestTypes, SearchParamType
 from ecom_crawler.models import VendorParams, VendorResponse
 

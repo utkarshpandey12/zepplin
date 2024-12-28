@@ -1,12 +1,12 @@
 from typing import List
-from ecom_crawler.models import VendorParams
+
 from ecom_crawler.dataclasses import VendorTypeEnum
+from ecom_crawler.models import VendorParams
 from ecom_crawler.public_api_client import PublicApiClient
 from tasks.crawler_params import get_keyword_var
 
 
 class EcomCrawler:
-
     def __init__(self, vendor_params_json):
         self.vendor_params_json = vendor_params_json
         self.public_api_client = PublicApiClient()

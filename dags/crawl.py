@@ -1,12 +1,12 @@
 import os
 import sys
+
 import pendulum
 from airflow.models import DAG
-from airflow.operators.python import (
-    PythonOperator,
-)
-from operators.crawler import CrawlVendorsOperator
+from airflow.operators.python import PythonOperator
 from airflow.utils.task_group import TaskGroup
+
+from operators.crawler import CrawlVendorsOperator
 from tasks.crawler_params import get_vendors
 
 PROJECT_ROOT = os.path.abspath(
@@ -31,7 +31,6 @@ def create_ecom_crawler_dag():
     )
 
     with dag:
-
         get_run_parameters = PythonOperator(
             task_id="get_run_parameters", python_callable=get_vendors
         )
